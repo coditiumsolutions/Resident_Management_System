@@ -1,0 +1,15 @@
+{
+    "name": "rms/ready-plaza",
+    "description": "Ready Plaza Property Services Management System",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "./"
+        }
+    }
+}
