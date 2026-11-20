@@ -146,6 +146,8 @@ function nav_active(string $key, string $current): string
 function resolve_nav_section(string $currentNav): string
 {
     $exact = [
+        'dashboard' => 'home',
+        'home' => 'home',
         'properties' => 'property',
         'blocks' => 'property',
         'floors' => 'property',

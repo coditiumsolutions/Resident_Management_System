@@ -319,10 +319,11 @@ a { text-decoration: none; }
     align-items: center;
     gap: 0.7rem;
     color: rgba(255, 255, 255, 0.88);
-    padding: 0.62rem 0.8rem;
-    border-radius: 10px;
-    margin-bottom: 0.2rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 0;
+    margin-bottom: 0;
     font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
     transition: background 0.15s ease, color 0.15s ease;
 }
 

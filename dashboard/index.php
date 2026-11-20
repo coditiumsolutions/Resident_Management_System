@@ -6,7 +6,7 @@ require_once dirname(__DIR__) . '/includes/functions.php';
 require_once dirname(__DIR__) . '/includes/dashboard_data.php';
 require_login();
 
-$pageTitle = 'Dashboard';
+$pageTitle = 'Home';
 $currentNav = 'dashboard';
 $data = get_dashboard_data(db());
 $stats = $data['stats'];
@@ -15,50 +15,10 @@ $charts = $data['charts'];
 require ROOT_PATH . '/includes/header.php';
 ?>
 
-<div class="page-header">
-    <div>
-        <h1>Dashboard</h1>
-        <p class="text-muted mb-0">
-            Overview for <?= e(date('F Y')) ?> · Billing month <?= e($data['billing_month']) ?>
-        </p>
-    </div>
-    <div class="text-muted small">
-        <i class="bi bi-calendar3 me-1"></i><?= e(date('l, d M Y')) ?>
-    </div>
-</div>
-
-<div class="row g-3 mb-4">
-    <?php
-    $cards = [
-        ['Total Properties', $stats['total_properties'], 'bi-buildings', 'navy', false],
-        ['Total Units', $stats['total_units'], 'bi-door-closed', 'blue', false],
-        ['Occupied Units', $stats['occupied_units'], 'bi-house-check', 'green', false],
-        ['Vacant Units', $stats['vacant_units'], 'bi-house', 'orange', false],
-        ['Total Owners', $stats['total_owners'], 'bi-person-badge', 'navy', false],
-        ['Total Tenants', $stats['total_tenants'], 'bi-person-vcard', 'blue', false],
-        ['Current Month Bills', $stats['month_bills'], 'bi-receipt', 'gold', true],
-        ['Current Month Collection', $stats['month_collection'], 'bi-cash-coin', 'green', true],
-        ['Outstanding Amount', $stats['outstanding'], 'bi-exclamation-circle', 'orange', true],
-        ['Pending Complaints', $stats['pending_complaints'], 'bi-chat-left-dots', 'red', false],
-    ];
-    foreach ($cards as [$label, $value, $icon, $tone, $money]):
-    ?>
-        <div class="col-6 col-md-4 col-xl-3 col-xxl">
-            <div class="stat-card">
-                <div class="stat-icon <?= e($tone) ?>"><i class="bi <?= e($icon) ?>"></i></div>
-                <div>
-                    <div class="label"><?= e($label) ?></div>
-                    <div class="value"><?= $money ? e(format_money($value)) : e((string) $value) ?></div>
-                </div>
-            </div>
-        </div>
-    <?php endforeach; ?>
-</div>
-
 <div class="row g-3 mb-4">
     <div class="col-12 col-xl-6">
         <div class="card panel-card h-100">
-            <div class="card-header">Monthly Collection (Last 12 Months)</div>
+            <div class="card-header">Monthly Collection Trend (Line)</div>
             <div class="card-body">
                 <div class="chart-wrap">
                     <canvas id="chartCollection"></canvas>
@@ -68,7 +28,7 @@ require ROOT_PATH . '/includes/header.php';
     </div>
     <div class="col-12 col-xl-6">
         <div class="card panel-card h-100">
-            <div class="card-header">Billing Summary · <?= e($data['billing_month']) ?></div>
+            <div class="card-header">Billing Summary (Bar) · <?= e($data['billing_month']) ?></div>
             <div class="card-body">
                 <div class="chart-wrap">
                     <canvas id="chartBilling"></canvas>
@@ -78,7 +38,7 @@ require ROOT_PATH . '/includes/header.php';
     </div>
     <div class="col-12 col-xl-6">
         <div class="card panel-card h-100">
-            <div class="card-header">Complaint Status</div>
+            <div class="card-header">Complaint Status (Bar)</div>
             <div class="card-body">
                 <div class="chart-wrap">
                     <canvas id="chartComplaints"></canvas>
@@ -88,7 +48,7 @@ require ROOT_PATH . '/includes/header.php';
     </div>
     <div class="col-12 col-xl-6">
         <div class="card panel-card h-100">
-            <div class="card-header">Unit Occupancy</div>
+            <div class="card-header">Unit Occupancy (Line)</div>
             <div class="card-body">
                 <div class="chart-wrap">
                     <canvas id="chartOccupancy"></canvas>
@@ -275,15 +235,18 @@ $pageScripts = <<<HTML
   };
 
   new Chart(document.getElementById('chartCollection'), {
-    type: 'bar',
+    type: 'line',
     data: {
       labels: data.collection.labels,
       datasets: [{
         label: 'Collection',
         data: data.collection.values,
-        backgroundColor: 'rgba(31, 111, 235, 0.75)',
-        borderRadius: 6,
-        maxBarThickness: 28
+        borderColor: colors.blue,
+        backgroundColor: 'rgba(31, 111, 235, 0.18)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 4,
+        pointBackgroundColor: colors.blue
       }]
     },
     options: {
@@ -296,42 +259,69 @@ $pageScripts = <<<HTML
   });
 
   new Chart(document.getElementById('chartBilling'), {
-    type: 'doughnut',
+    type: 'bar',
     data: {
       labels: data.billing.labels,
       datasets: [{
+        label: 'Amount',
         data: data.billing.values,
         backgroundColor: [colors.navy, colors.gold, colors.blue, '#38bdf8', colors.orange],
-        borderWidth: 0
+        borderRadius: 6,
+        maxBarThickness: 42
       }]
     },
-    options: commonOptions
+    options: {
+      ...commonOptions,
+      scales: {
+        x: { grid: { display: false } },
+        y: { beginAtZero: true, ticks: { callback: (v) => Number(v).toLocaleString() } }
+      }
+    }
   });
 
   new Chart(document.getElementById('chartComplaints'), {
-    type: 'doughnut',
+    type: 'bar',
     data: {
       labels: data.complaints.labels,
       datasets: [{
+        label: 'Complaints',
         data: data.complaints.values,
-        backgroundColor: [colors.blue, colors.purple, colors.orange, colors.slate, colors.green, '#334155'],
-        borderWidth: 0
+        backgroundColor: 'rgba(109, 40, 217, 0.75)',
+        borderRadius: 6,
+        maxBarThickness: 36
       }]
     },
-    options: commonOptions
+    options: {
+      ...commonOptions,
+      scales: {
+        x: { grid: { display: false } },
+        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+      }
+    }
   });
 
   new Chart(document.getElementById('chartOccupancy'), {
-    type: 'pie',
+    type: 'line',
     data: {
       labels: data.occupancy.labels,
       datasets: [{
+        label: 'Units',
         data: data.occupancy.values,
-        backgroundColor: [colors.green, colors.gold, colors.orange],
-        borderWidth: 0
+        borderColor: colors.green,
+        backgroundColor: 'rgba(21, 128, 61, 0.16)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 5,
+        pointBackgroundColor: colors.green
       }]
     },
-    options: commonOptions
+    options: {
+      ...commonOptions,
+      scales: {
+        x: { grid: { display: false } },
+        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+      }
+    }
   });
 })();
 </script>

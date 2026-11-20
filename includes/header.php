@@ -10,6 +10,7 @@ $activeLayoutTheme = layout_get_theme();
 $layoutThemeCss = layout_theme_css_vars($activeLayoutTheme);
 
 $topModules = [
+    ['section' => 'home', 'label' => 'Home', 'href' => 'dashboard/'],
     ['section' => 'resident', 'label' => 'Residents', 'href' => 'modules/residents/index.php'],
     ['section' => 'property', 'label' => 'Units Detail', 'href' => 'modules/properties/index.php'],
     ['section' => 'billing', 'label' => 'Billings', 'href' => 'modules/billing/index.php'],

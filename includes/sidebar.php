@@ -81,7 +81,7 @@ $sectionTitles = [
 <aside class="app-sidebar" id="appSidebar">
     <nav class="sidebar-nav">
         <a class="nav-link <?= nav_active('dashboard', $currentNav) ?>" href="<?= e(base_url('dashboard/')) ?>">
-            <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+            <i class="bi bi-house-door"></i><span>Home</span>
         </a>
 
         <?php if (isset($sidebarMenus[$currentSection])): ?>
